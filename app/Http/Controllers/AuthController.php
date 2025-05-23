@@ -60,4 +60,64 @@ class AuthController extends Controller
     {
         return $this->respondWithToken(Auth::refresh());
     }
+
+    public function UpdatePassword(Request $request)
+    {
+        $user = Auth::user();
+        $validator = Validator::make($request->all(), [
+            'old_password' => 'required',
+            'new_password' => 'required|min:6|confirmed',
+        ]);
+
+       try {
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+
+            if (!password_verify($request->old_password, $user->password)) {
+                return response()->json(['message' => 'Old password is incorrect'], 422);
+            }
+
+            $user->password = bcrypt($request->new_password);
+            $user->save();
+
+            return response()->json(['message' => 'Password updated successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to update password'], 500);
+        }
+    }
+
+    public function UpdateEmail(Request $request)
+    {
+        $user = Auth::user();
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user->email = $request->email;
+        $user->save();
+
+        return response()->json(['message' => 'Email updated successfully']);
+    }
+    
+    public function UpdateName(Request $request)
+    {
+        $user = Auth::user();
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user->name = $request->name;
+        $user->save();
+
+        return response()->json(['message' => 'Name updated successfully']);
+    }
 }
