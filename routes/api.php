@@ -6,7 +6,8 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Middleware\CheckRole;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AttendanceController;
-
+use App\Http\Controllers\ReportController;
+use Illuminate\Support\Facades\Storage;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -23,7 +24,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/update-password', [AuthController::class, 'updatePassword']);
     Route::post('/update-email', [AuthController::class, 'updateEmail']);
 
-    // Attendance routes
+
+    Route::post('/reports', [ReportController::class, 'store']);
+    
+    Route::post('/reports/{id}', [ReportController::class, 'updateReport']);
+
 });
 
 Route::middleware('auth:api')->post('/generate-attendance-token', [AttendanceController::class, 'generate']);
@@ -38,5 +43,5 @@ Route::prefix('admin')
         Route::get('/user/{id}', [DashboardController::class, 'showUserProfile']);
         Route::get('/attendance', [DashboardController::class, 'showAttendance']);
         Route::get('/attendance/{id}', [DashboardController::class, 'showAttendanceById']);
-       
+        Route::get('/reports', [DashboardController::class, 'showReports']);
     });

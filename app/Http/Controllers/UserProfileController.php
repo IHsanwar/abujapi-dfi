@@ -17,7 +17,7 @@ class UserProfileController extends Controller
             'phone_number' => 'nullable|string|max:20',
             'status' => 'nullable|string|max:100',
             'address' => 'nullable|string',
-            'gender' => 'nullable|string|in:Laki-laki,Perempuan',
+            'gender' => 'nullable|string|in:Laki-laki,Perempuan,Lainnya',
             'age' => 'nullable|integer|min:0',
             'height' => 'nullable|integer|min:0',
             'weight' => 'nullable|integer|min:0',

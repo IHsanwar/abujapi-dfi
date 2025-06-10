@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserProfile;
 use App\Models\Attendance;
-
+use App\Models\Report;
 
 
 class DashboardController extends Controller
@@ -77,6 +77,15 @@ class DashboardController extends Controller
         return response()->json([
             'message' => 'User Attendance Details',
             'data' => $user->attendance
+        ]);
+    }
+    public function showReports()
+    {
+        $reports = Report::with('user')->get();
+
+        return response()->json([
+            'message' => 'Reports Details',
+            'data' => $reports
         ]);
     }
 }
