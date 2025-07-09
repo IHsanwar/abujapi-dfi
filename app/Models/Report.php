@@ -15,11 +15,18 @@ class Report extends Model
         'area',
         'reported_at',
         'image_url',
+        'location',
+        'location_id',
     ];
 
     public function user()
 {
     return $this->belongsTo(User::class);
 }
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
+    }
+
 
 }

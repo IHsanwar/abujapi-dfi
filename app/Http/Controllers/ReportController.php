@@ -8,56 +8,58 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    public function store(Request $request)
-{
-    try {
-        $request->validate([
-            'description' => 'required|string',
-            'area' => 'required|string',
-            'reported_at' => 'required|date',
-            'image' => 'nullable|image|max:2048',
-        ]);
+    public function store(Request $request){
+        try {
+            $request->validate([
+                'description' => 'required|string',
+                'area' => 'required|string',
+                'reported_at' => 'required|date',
+                'image' => 'nullable|image|max:2048',
+                'location_code' => 'nullable|exists:locations,code',
+            ]);
 
-        $imageUrl = null;
+            $imageUrl = null;
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = auth()->id() . '-' . $request->area . '.' . Str::random(4) . '.' . $image->getClientOriginalExtension();
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = auth()->id() . '-' . $request->area . '.' . Str::random(4) . '.' . $image->getClientOriginalExtension();
+                $path = Storage::disk('filebase')->putFileAs('reports', $image, $imageName, 'public');
+                $imageUrl = Storage::disk('filebase')->url($path);
+            }
+                
+            $locationId = null;
+            if ($request->filled('location_code')) {
+                $location = \App\Models\Location::where('code', $request->location_code)->first();
+                $locationId = $location ? $location->id : null;
+            }
 
-            $path = Storage::disk('filebase')->putFileAs('reports', $image, $imageName, 'public');
+            $report = Report::create([
+                'user_id' => auth()->id(),
+                'description' => $request->description,
+                'area' => $request->area,
+                'reported_at' => $request->reported_at,
+                'image_url' => $imageUrl,
+                'location_id' => $locationId,
+            ]);
 
-            $imageUrl = Storage::disk('filebase')->url($path);
+            return response()->json([
+                'message' => 'Report created successfully.',
+                'data' => $report->load('user', 'location')
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while creating the report.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $report = Report::create([
-            'user_id' => auth()->id(),
-            'description' => $request->description,
-            'area' => $request->area,
-            'reported_at' => $request->reported_at,
-            'image_url' => $imageUrl
-        ]);
-
-        return response()->json([
-            'message' => 'Report created successfully.',
-            'data' => $report
-        ], 201);
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'message' => 'Validation failed.',
-            'errors' => $e->errors()
-        ], 422);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'An error occurred while creating the report.',
-            'error' => $e->getMessage()
-        ], 500);
-
-
-}
-
-}
+    }
     public function updateReport(Request $request, $id)
 {
     try {

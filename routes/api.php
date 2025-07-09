@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\LocationController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -28,6 +29,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/reports', [ReportController::class, 'store']);
     
     Route::post('/reports/{id}', [ReportController::class, 'updateReport']);
+
+    Route::post('/location/register', [LocationController::class, 'createLocation']);
 
 });
 
