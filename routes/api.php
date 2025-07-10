@@ -13,6 +13,12 @@ use App\Http\Controllers\LocationController;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/refresh', [AuthController::class, 'refresh']);
+use App\Http\Middleware\CorsMiddleware;
+
+Route::middleware([CorsMiddleware::class])->group(function () {
+    Route::get('/generate-attendance-token', [AttendanceController::class, 'generate']);
+});
+
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -33,8 +39,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/location/register', [LocationController::class, 'createLocation']);
 
 });
-
-Route::middleware('auth:api')->post('/generate-attendance-token', [AttendanceController::class, 'generate']);
 Route::post('/submit-attendance', [AttendanceController::class, 'submit']);
 
 

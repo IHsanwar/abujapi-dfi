@@ -31,51 +31,50 @@ class AttendanceController extends Controller
         ]);
     }
 
-    // Process Attendance via scanned QR token
     
-public function submit(Request $request)
-{
-    try {
-        $request->validate([
-            'token' => 'required|string'
-        ]);
+    public function submit(Request $request)
+    {
+        try {
+            $request->validate([
+                'token' => 'required|string'
+            ]);
 
-        $attendanceToken = AttendanceToken::where('token', $request->token)->first();
+            $attendanceToken = AttendanceToken::where('token', $request->token)->first();
 
-        if (!$attendanceToken || $attendanceToken->isExpired()) {
-            return response()->json(['message' => 'Token tidak valid atau telah kadaluarsa.'], 400);
+            if (!$attendanceToken || $attendanceToken->isExpired()) {
+                return response()->json(['message' => 'Token tidak valid atau telah kadaluarsa.'], 400);
+            }
+
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json(['message' => 'User tidak terautentikasi.'], 401);
+            }
+
+            $attendance = Attendance::create([
+                'user_id'     => $user->id,
+                'attended_at' => now(),
+                'kehadiran'      => 'Hadir',
+            ]);
+            if (!$attendance) {
+                return response()->json(['message' => 'Gagal mencatat absensi.'], 500);
+            }
+
+            $attendanceToken->delete();
+
+            return response()->json([
+                'message' => 'Absensi berhasil.',
+                'data' => [
+                    'user_id' => $user->id,
+                    'name'    => $user->name,
+                    'attended_at' => $attendance->attended_at,
+                    'kehadiran'  => $attendance->kehadiran,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Gagal memproses absensi: ' . $e->getMessage());
+            return response()->json(['message' => 'Terjadi kesalahan saat memproses absensi.'], 500);
         }
-
-        $user = Auth::user();
-
-        if (!$user) {
-            return response()->json(['message' => 'User tidak terautentikasi.'], 401);
-        }
-
-        $attendance = Attendance::create([
-            'user_id'     => $user->id,
-            'attended_at' => now(),
-            'kehadiran'      => 'Hadir',
-        ]);
-        if (!$attendance) {
-            return response()->json(['message' => 'Gagal mencatat absensi.'], 500);
-        }
-
-        $attendanceToken->delete();
-
-        return response()->json([
-            'message' => 'Absensi berhasil.',
-            'data' => [
-                'user_id' => $user->id,
-                'name'    => $user->name,
-                'attended_at' => $attendance->attended_at,
-                'kehadiran'  => $attendance->kehadiran,
-            ]
-        ]);
-    } catch (\Exception $e) {
-        Log::error('Gagal memproses absensi: ' . $e->getMessage());
-        return response()->json(['message' => 'Terjadi kesalahan saat memproses absensi.'], 500);
     }
-}
 
 }
