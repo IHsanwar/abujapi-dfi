@@ -9,7 +9,7 @@ Route::middleware('auth:api')->group(...); // 'api' harus terdaftar
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
+        
 use Illuminate\Support\Str;
 
 Route::get('/test-upload', function () {

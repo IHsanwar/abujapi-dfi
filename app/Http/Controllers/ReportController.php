@@ -13,8 +13,7 @@ class ReportController extends Controller
             $request->validate([
                 'description' => 'required|string',
                 'area' => 'required|string',
-                'reported_at' => 'required|date',
-                'image' => 'nullable|image|max:2048',
+                'image' => 'required|image|max:2048',
                 'location_code' => 'nullable|exists:locations,code',
             ]);
 
@@ -22,11 +21,15 @@ class ReportController extends Controller
 
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                $imageName = auth()->id() . '-' . $request->area . '.' . Str::random(4) . '.' . $image->getClientOriginalExtension();
-                $path = Storage::disk('filebase')->putFileAs('reports', $image, $imageName, 'public');
-                $imageUrl = Storage::disk('filebase')->url($path);
+                $imageName = auth()->id() . '-' . $request->area . '-' . Str::random(4) . '.' . $image->getClientOriginalExtension();
+
+                // Simpan ke folder storage/app/public/reports
+                $path = $image->storeAs('reports', $imageName, 'public');
+
+                // URL publik: /storage/reports/namafile.jpg
+                $imageUrl = Storage::disk('public')->url($path);
             }
-                
+            // Jika ada kode lokasi, cari ID lokasi        
             $locationId = null;
             if ($request->filled('location_code')) {
                 $location = \App\Models\Location::where('code', $request->location_code)->first();
@@ -37,7 +40,7 @@ class ReportController extends Controller
                 'user_id' => auth()->id(),
                 'description' => $request->description,
                 'area' => $request->area,
-                'reported_at' => $request->reported_at,
+                'reported_at' => now(),
                 'image_url' => $imageUrl,
                 'location_id' => $locationId,
             ]);
