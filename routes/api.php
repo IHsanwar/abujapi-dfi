@@ -26,13 +26,14 @@ Route::middleware('auth:api')->group(function () {
     
     Route::post('/profile', [UserProfileController::class, 'storeOrUpdate']);
     Route::patch('/profile', [UserProfileController::class, 'storeOrUpdate']);
-
-    Route::get('/profile', [UserProfileController::class, 'show']);
+    Route::get('/profile/{id}', [UserProfileController::class, 'showById']);
+    Route::get('/profile', [UserProfileController::class, 'showProfile']);
 
     Route::post('/update-password', [AuthController::class, 'updatePassword']);
     Route::post('/update-email', [AuthController::class, 'updateEmail']);
 
-
+        
+    Route::post('/submit-attendance', [AttendanceController::class, 'submit']);
     Route::post('/reports', [ReportController::class, 'store']);
     
     Route::post('/reports/{id}', [ReportController::class, 'updateReport']);
@@ -40,13 +41,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/location/register', [LocationController::class, 'createLocation']);
 
 });
-Route::post('/submit-attendance', [AttendanceController::class, 'submit']);
 
 
 Route::prefix('admin')
     ->middleware(['auth:api', CheckRole::class.':admin'])
     ->group(function () {
-        
+        Route::delete('/profile/{id}', [UserProfileController::class, 'delete']);
         Route::get('/dashboard', [DashboardController::class, 'show']);
         Route::get('/user/{id}', [DashboardController::class, 'showUserProfile']);
         Route::get('/attendance', [DashboardController::class, 'showAttendance']);

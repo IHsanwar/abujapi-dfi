@@ -17,26 +17,28 @@ class DashboardController extends Controller
             'message' => 'Welcome to the Dashboard'
         ]);}
 
-    public function show()
-    {
-        
-        $users = User::with('profile')->get();
+   public function show()
+{
+        $users = User::whereHas('profile')->with('profile')->get();
 
         $result = $users->map(function ($user) {
             return [
-                'nik' => $user->profile->nik ?? null,
+                'nik' => $user->profile->nik,
                 'name' => $user->name,
                 'email' => $user->email,
-                'phone_number' => $user->profile->phone_number ?? null,
+                'phone_number' => $user->profile->phone_number,
                 'role' => $user->role,
             ];
         });
 
         return response()->json([
-            'message' => 'Dashboard Details',
-            'data' => $result
-        ]);
+        'data' => $result
+    ]);
 }
+
+
+        
+
 
     public function showUserProfile($id)
     {

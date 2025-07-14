@@ -16,7 +16,7 @@ class UserProfileController extends Controller
 
         $validated = $request->validate([
             'nik' => 'nullable|string|max:20',
-            'profile_photo' => 'nullable|image|max:2048', // ✅ image bukan string
+            'profile_photo' => 'nullable|image|max:2048', 
             'phone_number' => 'nullable|string|max:20',
             'status' => 'nullable|string|max:100',
             'address' => 'nullable|string',
@@ -69,7 +69,7 @@ class UserProfileController extends Controller
     }
 }
 
-    public function show()
+    public function showProfile()
 {
     $user = Auth::user();
     $profile = $user->profile;
@@ -82,9 +82,70 @@ class UserProfileController extends Controller
         'data' => [
             'name' => $user->name,
             'email' => $user->email,
+            'role' => $user->role,
             'profile' => $profile
         ]
     ]);
 }
+   public function showById($id)
+{
+    try {
+        $profile = UserProfile::where('user_id', $id)->first();
+
+        if (!$profile) {
+            return response()->json([
+                'message' => 'Profil tidak ditemukan.',
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Profil ditemukan.',
+            'data' => $profile,
+        ], 200);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Terjadi kesalahan saat mengambil profil.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+
+    public function delete($id)
+{
+    try {
+        $profile = UserProfile::where('user_id', $id)->first();
+
+        if (!$profile) {
+            return response()->json([
+                'message' => 'Profil tidak ditemukan.',
+            ], 404);
+        }
+
+        // Simpan data sebelum dihapus
+        $deletedData = $profile->toArray();
+
+        // Hapus file foto jika ada
+        if ($profile->profile_photo_url) {
+            $filePath = str_replace('/storage/', '', parse_url($profile->profile_photo_url, PHP_URL_PATH));
+            Storage::disk('public')->delete($filePath);
+        }
+
+        $profile->delete();
+
+        return response()->json([
+            'message' => 'Profil berhasil dihapus.',
+            'deleted_data' => $deletedData
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Terjadi kesalahan saat menghapus profil.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
 
 }
