@@ -123,10 +123,8 @@ class UserProfileController extends Controller
             ], 404);
         }
 
-        // Simpan data sebelum dihapus
         $deletedData = $profile->toArray();
 
-        // Hapus file foto jika ada
         if ($profile->profile_photo_url) {
             $filePath = str_replace('/storage/', '', parse_url($profile->profile_photo_url, PHP_URL_PATH));
             Storage::disk('public')->delete($filePath);

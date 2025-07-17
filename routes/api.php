@@ -52,4 +52,5 @@ Route::prefix('admin')
         Route::get('/attendance', [DashboardController::class, 'showAttendance']);
         Route::get('/attendance/{id}', [DashboardController::class, 'showAttendanceById']);
         Route::get('/reports', [DashboardController::class, 'showReports']);
+        Route::get('/reports/{id}',[DashboardController::class, 'showReportsById']);
     });

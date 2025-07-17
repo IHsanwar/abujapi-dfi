@@ -90,4 +90,15 @@ class DashboardController extends Controller
             'data' => $reports
         ]);
     }
+    public function showReportsById($id){
+        $reports = Report::with('user')->find($id);
+        if (!$reports) {
+            return response()->json(['message' => 'Reports not found'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Reports Details',
+            'data' => $reports
+        ]); 
+    }
 }
