@@ -16,7 +16,7 @@ Route::post('/refresh', [AuthController::class, 'refresh']);
 use App\Http\Middleware\CorsMiddleware;
 
 Route::middleware([CorsMiddleware::class])->group(function () {
-    Route::get('/generate-attendance-token', [AttendanceController::class, 'generate']);
+    Route::get('/generate-attendance-token', [AttendanceController::class, 'generateAttendanceQR']);
 });
 
 
@@ -31,9 +31,8 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/update-password', [AuthController::class, 'updatePassword']);
     Route::post('/update-email', [AuthController::class, 'updateEmail']);
-
-        
-    Route::post('/submit-attendance', [AttendanceController::class, 'submit']);
+    
+    Route::post('/submit-attendance', [AttendanceController::class, 'submitAttendanceQR']);
     Route::post('/reports', [ReportController::class, 'store']);
     
     Route::post('/reports/{id}', [ReportController::class, 'updateReport']);

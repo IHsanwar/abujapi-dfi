@@ -32,6 +32,9 @@ class UserProfile extends Model
         'work_experience',
         'skills',
         'grade',
+        'agama',
+        'tanggal_lahir',
+        'tempat_lahir'
     ];
 
     /**

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 class AttendanceController extends Controller
 {
     // Generate QR Token (expires in 5 mins)
-    public function generate()
+    public function generateAttendanceQR()
     {
         $token = Str::uuid()->toString();
         $expiresAt = Carbon::now()->addMinutes(5);
@@ -32,7 +32,7 @@ class AttendanceController extends Controller
     }
 
     
-    public function submit(Request $request)
+    public function submitAttendanceQR(Request $request)
     {
         try {
             $request->validate([

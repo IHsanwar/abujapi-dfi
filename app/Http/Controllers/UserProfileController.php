@@ -34,6 +34,9 @@ class UserProfileController extends Controller
             'work_experience' => 'nullable|string',
             'skills' => 'nullable|string',
             'grade' => 'nullable|string|max:10',
+            'agama'=> 'nullable|string|max:10',
+            'tempat_lahir'=>'nullable|string|max:50',
+            'tanggal_lahir' => 'nullable|date|before:today',
         ]);
 
         if ($request->hasFile('profile_photo')) {
