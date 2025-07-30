@@ -33,13 +33,24 @@ class AuthController extends Controller
     }
 
     protected function respondWithToken($token)
-    {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
-        ]);
-    }
+{
+    $user = auth()->user();
+
+    return response()->json([
+        'access_token' => $token,
+        'token_type' => 'bearer',
+        'expires_in' => auth()->factory()->getTTL() * 60,
+        'user' => [
+            'id' => $user->id,
+            'email' => $user->email,
+            'name' => $user->name,
+            'role' => $user->role,
+        ],
+        'has_profile' => $user->profile !== null 
+    ]);
+}
+
+
     public function register(Request $request)
     {
         $this->validate($request, [

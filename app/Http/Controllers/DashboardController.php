@@ -59,15 +59,20 @@ class DashboardController extends Controller
             ]
         ]);
     }
+
+
     public function showAttendance()
     {
-        $attendances = Attendance::with('user')->get();
+        $attendances = Attendance::with('user.profile')->get();
+
 
         return response()->json([
             'message' => 'Attendance Details',
-            'data' => $attendances
+            'data' => $attendances 
         ]);
     }
+
+    
     public function showAttendanceByUser($id)
     {
         $user = User::with('attendance')->find($id);
@@ -81,6 +86,7 @@ class DashboardController extends Controller
             'data' => $user->attendance
         ]);
     }
+    
     public function showReports()
     {
         $reports = Report::with('user')->get();

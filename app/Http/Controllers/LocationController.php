@@ -6,6 +6,18 @@ use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {
+    public function showLocations() {
+        $locations = Location::all();
+        return response()->json($locations);
+    }
+
+    public function showLocationbyId($id) {
+        $location = Location::find($id);
+        if (!$location) {
+            return response()->json(['message' => 'Location not found'], 404);
+        }
+        return response()->json($location);
+    }
     public function createLocation(Request $request) {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -27,6 +39,8 @@ class LocationController extends Controller
         $location->delete();
         return response()->json(['message' => 'Location deleted successfully'], 200);
     }
+
+    
     public function updateLocation(Request $request, $id) {
         $location = Location::find($id);
         if (!$location) {
