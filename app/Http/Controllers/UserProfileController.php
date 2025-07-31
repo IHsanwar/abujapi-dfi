@@ -7,6 +7,7 @@ use App\Models\UserProfile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
+use App\Models\User;
 class UserProfileController extends Controller
 {
     public function storeOrUpdate(Request $request)
@@ -90,22 +91,27 @@ class UserProfileController extends Controller
         ]
     ]);
 }
-   public function showById($id)
+
+public function showById($id)
 {
     try {
-        $profile = UserProfile::where('user_id', $id)->first();
+        $user = User::with('profile')->find($id);
 
-        if (!$profile) {
+        if (!$user || !$user->profile) {
             return response()->json([
-                'message' => 'Profil tidak ditemukan.',
+                'message' => 'User atau profil tidak ditemukan.',
             ], 404);
         }
 
         return response()->json([
             'message' => 'Profil ditemukan.',
-            'data' => $profile,
+            'data' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role, // tambahkan jika ada
+                'profile' => $user->profile,
+            ],
         ], 200);
-        
     } catch (\Exception $e) {
         return response()->json([
             'message' => 'Terjadi kesalahan saat mengambil profil.',
@@ -113,6 +119,7 @@ class UserProfileController extends Controller
         ], 500);
     }
 }
+
 
 
     public function delete($id)
