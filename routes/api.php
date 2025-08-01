@@ -38,10 +38,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/reports/{id}', [ReportController::class, 'updateReport']);
 
     Route::post('/location/register', [LocationController::class, 'createLocation']);
+    Route::delete('/location/{id}', [LocationController::class, 'deleteLocation']);
 
 });
 
-
+    
 Route::prefix('admin')
     ->middleware(['auth:api', CheckRole::class.':admin'])
     ->group(function () {
