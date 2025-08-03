@@ -33,10 +33,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/update-email', [AuthController::class, 'updateEmail']);
     
     Route::post('/submit-attendance', [AttendanceController::class, 'submitAttendanceQR']);
-    Route::post('/reports', [ReportController::class, 'store']);
-    
-    Route::post('/reports/{id}', [ReportController::class, 'updateReport']);
 
+    Route::post('/reports', [ReportController::class, 'store']);
+    Route::post('/reports/{id}', [ReportController::class, 'updateReport']);
+    Route::delete('/reports/{id}',[ReportController::class, 'deleteReport']);
+
+    
     Route::post('/location/register', [LocationController::class, 'createLocation']);
     Route::delete('/location/{id}', [LocationController::class, 'deleteLocation']);
 

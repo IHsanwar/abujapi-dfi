@@ -112,13 +112,25 @@ class ReportController extends Controller
 {
     try {
         $report = Report::findOrFail($id);
+
+        // Delete image from storage
+        if ($report->image_url) {
+            $imagePath = str_replace('/storage/', 'public/', $report->image_url);
+            Storage::delete($imagePath);
+        }
+
+        // Optional: dissociate if you don't want to leave constraints
+        $report->location()->dissociate();
+        $report->user()->dissociate();
+        $report->save();
+
+        // Delete the report
         $report->delete();
 
         return response()->json(['message' => 'Report deleted successfully.'], 200);
 
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
         return response()->json(['message' => 'Report not found.'], 404);
-
     } catch (\Exception $e) {
         return response()->json([
             'message' => 'An error occurred while deleting the report.',
@@ -126,5 +138,6 @@ class ReportController extends Controller
         ], 500);
     }
 }
+
 
 }
