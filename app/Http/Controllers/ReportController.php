@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Report;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Log;
 class ReportController extends Controller
 {
     public function store(Request $request){
@@ -113,18 +113,19 @@ class ReportController extends Controller
     try {
         $report = Report::findOrFail($id);
 
-        // Delete image from storage
         if ($report->image_url) {
-            $imagePath = str_replace('/storage/', 'public/', $report->image_url);
-            Storage::delete($imagePath);
+            // Ambil hanya path relatif dari 'storage'
+            $relativePath = str_replace('/storage/', '', parse_url($report->image_url, PHP_URL_PATH));
+
+            if (Storage::disk('public')->exists($relativePath)) {
+                Storage::disk('public')->delete($relativePath);
+                Log::info('Image deleted: ' . $relativePath);
+            } else {
+                Log::warning('File not found: ' . $relativePath);
+            }
         }
 
-        // Optional: dissociate if you don't want to leave constraints
-        $report->location()->dissociate();
-        $report->user()->dissociate();
-        $report->save();
 
-        // Delete the report
         $report->delete();
 
         return response()->json(['message' => 'Report deleted successfully.'], 200);
