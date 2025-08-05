@@ -28,6 +28,8 @@ Route::middleware('auth:api')->group(function () {
     Route::patch('/profile', [UserProfileController::class, 'storeOrUpdate']);
     Route::get('/profile/{id}', [UserProfileController::class, 'showById']);
     Route::get('/profile', [UserProfileController::class, 'showProfile']);
+    
+    Route::delete('/profile/{id}', [UserProfileController::class, 'delete']);
 
     Route::post('/update-password', [AuthController::class, 'updatePassword']);
     Route::post('/update-email', [AuthController::class, 'updateEmail']);
@@ -48,7 +50,6 @@ Route::middleware('auth:api')->group(function () {
 Route::prefix('admin')
     ->middleware(['auth:api', CheckRole::class.':admin'])
     ->group(function () {
-        Route::delete('/profile/{id}', [UserProfileController::class, 'delete']);
         Route::get('/dashboard', [DashboardController::class, 'show']);
         Route::get('/user/{id}', [DashboardController::class, 'showUserProfile']);
         Route::get('/attendance', [DashboardController::class, 'showAttendance']);

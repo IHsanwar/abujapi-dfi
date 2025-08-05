@@ -23,6 +23,7 @@ class DashboardController extends Controller
 
         $result = $users->map(function ($user) {
             return [
+                'id'=> $user->id,
                 'nik' => $user->profile->nik,
                 'name' => $user->name,
                 'email' => $user->email,
