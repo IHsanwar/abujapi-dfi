@@ -41,12 +41,21 @@ class UserProfileController extends Controller
         ]);
 
         if ($request->hasFile('profile_photo')) {
+            // Hapus foto lama kalau ada
+            if ($user->profile && $user->profile->profile_photo_url) {
+                $oldPath = str_replace('/storage/', '', $user->profile->profile_photo_url);
+                Storage::disk('public')->delete($oldPath);
+            }
+
+            
             $photo = $request->file('profile_photo');
             $filename = 'profile_' . $user->id . '.' . $photo->getClientOriginalExtension();
             $path = $photo->storeAs('profiles', $filename, 'public');
 
+            
             $validated['profile_photo_url'] = Storage::disk('public')->url($path);
         }
+
 
 
         $profile = UserProfile::updateOrCreate(
