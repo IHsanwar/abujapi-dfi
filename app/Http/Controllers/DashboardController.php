@@ -57,6 +57,7 @@ class DashboardController extends Controller
                 'email' => $user->email,
                 'phone_number' => $user->profile->phone_number ?? null,
                 'role' => $user->role,
+                'profile_photo_url' => $user->profile->profile_photo_url ?? null,
             ]
         ]);
     }
