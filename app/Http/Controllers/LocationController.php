@@ -56,4 +56,27 @@ class LocationController extends Controller
         return response()->json(['message' => 'Location updated successfully', 'location' => $location], 200);
 
     }
+    
+    public function getByCode(Request $request)
+{
+    $code = $request->query('code');
+    
+    if (!$code) {
+        return response()->json(['message' => 'Code is required'], 400);
+    }
+
+    $location = Location::where('code', $code)->first();
+
+    if (!$location) {
+        return response()->json(['message' => 'Location not found'], 404);
+    }
+
+    return response()->json([
+        'id' => $location->id,
+        'name' => $location->name,
+        'code' => $location->code,
+    ]);
+}
+
+
 }

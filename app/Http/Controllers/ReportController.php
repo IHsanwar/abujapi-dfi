@@ -108,6 +108,7 @@ class ReportController extends Controller
 }
 
 
+    
     public function deleteReport($id)
 {
     try {

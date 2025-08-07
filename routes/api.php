@@ -43,6 +43,9 @@ Route::middleware('auth:api')->group(function () {
     
     Route::post('/location/register', [LocationController::class, 'createLocation']);
     Route::delete('/location/{id}', [LocationController::class, 'deleteLocation']);
+    Route::get('/locations/by-code', [LocationController::class, 'getByCode']);
+
+
 
 });
 
