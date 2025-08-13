@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\UserProfile;
 use App\Models\Attendance;
 use App\Models\Report;
-
+use App\Models\Location;
 
 class DashboardController extends Controller
 {
@@ -109,4 +109,24 @@ class DashboardController extends Controller
             'data' => $reports
         ]); 
     }
+
+
+
+    public function getDashboardStats()
+    {
+        $userId = auth()->id();
+
+        $totalReports = Report::where('user_id', $userId)->count();
+
+        $attendanceToday = Attendance::where('user_id', $userId)
+            ->whereDate('created_at', today())
+            ->exists();
+
+        return response()->json([
+            'total_reports' => $totalReports,
+            'attendance_status' => $attendanceToday ? 'Sudah absen' : 'Belum absen',
+        ]);
+    }
+
+
 }

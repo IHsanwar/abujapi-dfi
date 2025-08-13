@@ -8,14 +8,21 @@ class CorsMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        // CORS headers
-        $headers = [
-            'Access-Control-Allow-Origin' => '*', // ganti dengan domain frontend jika perlu
-            'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With',
+        $allowedOrigins = [
+            'http://localhost:5173', // untuk development
+            'https://abujapi-proto.ihsanwd10.my.id', 
+            'https://abujapi-dfi.vercel.app'
         ];
 
-        // Handle preflight request
+        $origin = $request->headers->get('Origin');
+
+        $headers = [
+            'Access-Control-Allow-Origin' => in_array($origin, $allowedOrigins) ? $origin : $allowedOrigins[0],
+            'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With',
+            'Access-Control-Allow-Credentials' => 'true', 
+        ];
+
         if ($request->getMethod() === "OPTIONS") {
             return response()->json('OK', 200, $headers);
         }
@@ -28,4 +35,3 @@ class CorsMiddleware
         return $response;
     }
 }
-

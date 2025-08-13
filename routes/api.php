@@ -45,6 +45,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/location/{id}', [LocationController::class, 'deleteLocation']);
     Route::get('/locations/by-code', [LocationController::class, 'getByCode']);
 
+    Route::get('/dashboard-stats', [DashboardController::class, 'getDashboardStats']);
 
 
 });
