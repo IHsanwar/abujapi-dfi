@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\QueryException;
+
 use App\Models\User;
 use App\Models\UserProfile;
 use App\Models\Attendance;
@@ -61,6 +65,70 @@ class DashboardController extends Controller
             ]
         ]);
     }
+
+    public function updateUserProfile(Request $request, $id)
+{
+    try {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $profile = $user->profile;
+        if (!$profile) {
+            return response()->json(['message' => 'Profile not found'], 404);
+        }
+
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'role'     => 'nullable|string|in:admin,user',
+            'name'     => 'nullable|string|max:255',
+            'email'    => 'nullable|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $data = $validator->validated();
+
+        // Hash password jika ada
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        // Update user
+        $user->update([
+            'role'     => $data['role']     ?? $user->role,
+            'name'     => $data['name']     ?? $user->name,
+            'email'    => $data['email']    ?? $user->email,
+            'password' => $data['password'] ?? $user->password,
+        ]);
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user'    => $user->load('profile')
+        ], 200);
+
+    } catch (QueryException $e) {
+        // Error database (misalnya constraint email unik)
+        return response()->json([
+            'message' => 'Database error',
+            'error'   => $e->getMessage(),
+        ], 500);
+
+    } catch (\Exception $e) {
+        // Error umum
+        return response()->json([
+            'message' => 'Something went wrong',
+            'error'   => $e->getMessage(),
+        ], 500);
+    }
+}
 
 
     public function showAttendance()

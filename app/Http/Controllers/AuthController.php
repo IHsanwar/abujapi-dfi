@@ -5,9 +5,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
-
 class AuthController extends Controller
 {
     public function login(Request $request)
@@ -72,63 +72,53 @@ class AuthController extends Controller
         return $this->respondWithToken(Auth::refresh());
     }
 
-    public function UpdatePassword(Request $request)
+        
+    public function updateAccount(Request $request)
     {
         $user = Auth::user();
-        $validator = Validator::make($request->all(), [
-            'old_password' => 'required',
-            'new_password' => 'required|min:6|confirmed',
-        ]);
 
-       try {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name'         => 'sometimes|required|string|max:255',
+                'email'        => 'sometimes|required|email|unique:users,email,' . $user->id,
+                'old_password' => 'sometimes|required_with:new_password',
+                'new_password' => 'sometimes|required|min:6|confirmed',
+            ]);
+
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 422);
             }
 
-            if (!password_verify($request->old_password, $user->password)) {
-                return response()->json(['message' => 'Old password is incorrect'], 422);
+            $data = $validator->validated();
+
+            if (isset($data['name'])) {
+                $user->name = $data['name'];
             }
 
-            $user->password = bcrypt($request->new_password);
+            if (isset($data['email'])) {
+                $user->email = $data['email'];
+            }
+
+            if (isset($data['new_password'])) {
+                if (!Hash::check($request->old_password, $user->password)) {
+                    return response()->json(['message' => 'Old password is incorrect'], 422);
+                }
+                $user->password = Hash::make($data['new_password']);
+            }
+
             $user->save();
 
-            return response()->json(['message' => 'Password updated successfully']);
+            return response()->json([
+                'message' => 'Profile updated successfully',
+                'user'    => $user
+            ], 200);
+
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to update password'], 500);
+            return response()->json([
+                'message' => 'Failed to update profile',
+                'error'   => $e->getMessage()
+            ], 500);
         }
     }
 
-    public function UpdateEmail(Request $request)
-    {
-        $user = Auth::user();
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email|unique:users,email,' . $user->id,
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-
-        $user->email = $request->email;
-        $user->save();
-
-        return response()->json(['message' => 'Email updated successfully']);
-    }
-    
-    public function UpdateName(Request $request)
-    {
-        $user = Auth::user();
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-
-        $user->name = $request->name;
-        $user->save();
-
-        return response()->json(['message' => 'Name updated successfully']);
-    }
 }
