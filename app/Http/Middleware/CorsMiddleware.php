@@ -9,9 +9,12 @@ class CorsMiddleware
     public function handle(Request $request, Closure $next)
     {
         $allowedOrigins = [
-            'http://localhost:5173', // untuk development
+            'http://localhost:5173',
             'https://abujapi-proto.ihsanwd10.my.id', 
-            'https://abujapi-dfi.vercel.app'
+            'https://abujapi-dfi.vercel.app',
+            'https://abujapi.fazaanggapra.my.id/'
+            
+
         ];
 
         $origin = $request->headers->get('Origin');
